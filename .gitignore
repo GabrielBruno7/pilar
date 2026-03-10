@@ -11,3 +11,5 @@ docker-compose.override.yml
 backend/vendor/
 backend/node_modules/
 frontend/node_modules/
+
+/.build.log
