@@ -34,8 +34,6 @@ services:
     container_name: pilar-backend
     restart: unless-stopped
     working_dir: /var/www
-    volumes:
-      - ./backend:/var/www
     ports:
       - "8000:8000"
     depends_on:

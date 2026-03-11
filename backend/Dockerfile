@@ -11,4 +11,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-CMD sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+COPY . /var/www
+
+RUN composer install --no-dev --optimize-autoloader
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
