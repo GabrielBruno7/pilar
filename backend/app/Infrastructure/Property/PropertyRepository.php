@@ -78,8 +78,17 @@ class PropertyRepository implements PropertyRepositoryInterface
         }
 
         $property
+            ->setCity($result->city)
             ->setTitle($result->title)
+            ->setState($result->state)
+            ->setTitle($result->title)
+            ->setStatus($result->status)
+            ->setStatus($result->status)
+            ->setStreet($result->street)
+            ->setNumber($result->number)
+            ->setPostalCode($result->postal_code)
             ->setDescription($result->description)
+            ->setNeighborhood($result->neighborhood)
         ;
 
         return true;
@@ -94,6 +103,25 @@ class PropertyRepository implements PropertyRepositoryInterface
                 'status' => Property::STATUS_DELETED,
                 'updated_at' => now(),
                 'deleted_at' => now()
+            ])
+        ;
+    }
+
+    public function update(Property $property): void
+    {
+        DB::table('properties')
+            ->where('id', $property->getId())
+            ->where('owner_id', $property->getOwner()->getId())
+            ->update([
+                'title' => $property->getTitle(),
+                'description' => $property->getDescription(),
+                'postal_code' => $property->getPostalCode(),
+                'street' => $property->getStreet(),
+                'number' => $property->getNumber(),
+                'neighborhood' => $property->getNeighborhood(),
+                'city' => $property->getCity(),
+                'state' => $property->getState(),
+                'updated_at' => now(),
             ])
         ;
     }
