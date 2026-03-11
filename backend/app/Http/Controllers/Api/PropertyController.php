@@ -23,7 +23,7 @@ class PropertyController extends Controller
                 city: $request->string('city')->toString(),
                 title: $request->string('title')->toString(),
                 state: $request->string('state')->toString(),
-                userId: $request->attributes->get('user_id'),
+                ownerId: $request->attributes->get('user_id'),
                 street: $request->string('street')->toString(),
                 number: $request->string('number')->toString(),
                 postalCode: $request->string('postal_code')->toString(),

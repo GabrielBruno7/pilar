@@ -18,8 +18,8 @@ class PropertyRepository implements PropertyRepositoryInterface
             'title' => $property->getTitle(),
             'street' => $property->getStreet(),
             'number' => $property->getNumber(),
-            'user_id' => $property->getUser()->getId(),
             'postal_code' => $property->getPostalCode(),
+            'owner_id' => $property->getOwner()->getId(),
             'description' => $property->getDescription(),
             'neighborhood' => $property->getNeighborhood(),
         ]);
@@ -41,7 +41,7 @@ class PropertyRepository implements PropertyRepositoryInterface
                 'description',
                 'neighborhood'
             )
-            ->where('user_id', $ownerId)
+            ->where('owner_id', $ownerId)
             ->orderBy('created_at', 'desc')
             ->get()
         ;

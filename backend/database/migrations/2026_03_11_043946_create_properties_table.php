@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
 
-            $table->uuid('user_id');
-            $table->foreign('user_id')
+            $table->uuid('owner_id');
+            $table->foreign('owner_id')
                 ->references('id')
                 ->on('users')
                 ->cascadeOnDelete()

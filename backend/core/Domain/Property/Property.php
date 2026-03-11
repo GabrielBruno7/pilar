@@ -6,7 +6,7 @@ use Core\Domain\User\User;
 
 class Property
 {
-    private User $user;
+    private User $owner;
     private string $title;
     private ?string $id = null;
     private ?string $city = null;
@@ -41,16 +41,16 @@ class Property
         return $this->id;
     }
 
-    public function setUser(User $user): self
+    public function setOwner(User $owner): self
     {
-        $this->user = $user;
+        $this->owner = $owner;
 
         return $this;
     }
 
-    public function getUser(): User
+    public function getOwner(): User
     {
-        return $this->user;
+        return $this->owner;
     }
 
     public function setTitle(string $title): self

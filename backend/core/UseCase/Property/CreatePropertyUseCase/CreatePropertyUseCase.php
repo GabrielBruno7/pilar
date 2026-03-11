@@ -15,10 +15,10 @@ class CreatePropertyUseCase
 
     public function execute(CreatePropertyInput $input): CreatePropertyOutput
     {
-        $user = (new User())->setId($input->userId);
+        $owner = (new User())->setId($input->ownerId);
 
         $property = (new Property())
-            ->setUser($user)
+            ->setOwner($owner)
             ->setId((string) Str::uuid())
             ->setTitle($input->title)
             ->setCity($input->city)

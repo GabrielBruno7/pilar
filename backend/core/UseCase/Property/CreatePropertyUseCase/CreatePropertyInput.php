@@ -6,7 +6,7 @@ class CreatePropertyInput
 {
     public function __construct(
         public string $title,
-        public string $userId,
+        public string $ownerId,
         public ?string $city = null,
         public ?string $state = null,
         public ?string $street = null,
