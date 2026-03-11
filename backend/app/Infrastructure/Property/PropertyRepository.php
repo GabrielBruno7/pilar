@@ -26,4 +26,40 @@ class PropertyRepository implements PropertyRepositoryInterface
 
         return $property;
     }
+
+    public function findPropertiesByOwnerId(string $ownerId): array
+    {
+        $data = DB::table('properties')
+            ->select(
+                'id',
+                'city',
+                'state',
+                'title',
+                'street',
+                'number',
+                'postal_code',
+                'description',
+                'neighborhood'
+            )
+            ->where('user_id', $ownerId)
+            ->orderBy('created_at', 'desc')
+            ->get()
+        ;
+
+        if ($data->isEmpty()) {
+            return [];
+        }
+
+        return array_map(fn($propertyData) => (new Property())
+            ->setId($propertyData->id)
+            ->setCity($propertyData->city)
+            ->setState($propertyData->state)
+            ->setTitle($propertyData->title)
+            ->setStreet($propertyData->street)
+            ->setNumber($propertyData->number)
+            ->setPostalCode($propertyData->postal_code)
+            ->setDescription($propertyData->description)
+            ->setNeighborhood($propertyData->neighborhood)
+        , $data->toArray());
+    }
 }

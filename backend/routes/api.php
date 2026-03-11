@@ -13,6 +13,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::POST('/logout', [AuthController::class, 'logout']);
 
     Route::POST('/property', [PropertyController::class, 'createProperty']);
+    Route::GET('/properties', [PropertyController::class, 'listProperties']);
 });
 
 Route::GET('/health', function () {
