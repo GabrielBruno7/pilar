@@ -8,6 +8,7 @@ class Property
 {
     private User $owner;
     private string $title;
+    private string $status;
     private ?string $id = null;
     private ?string $city = null;
     private ?string $state = null;
@@ -18,6 +19,9 @@ class Property
     private ?string $neighborhood = null;
 
     private ?PropertyRepositoryInterface $persistence;
+
+    public const STATUS_DELETED = 'deleted';
+    public const STATUS_ACTIVE = 'active';
 
     public function __construct(?PropertyRepositoryInterface $persistence = null)
     {
@@ -51,6 +55,18 @@ class Property
     public function getOwner(): User
     {
         return $this->owner;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
     }
 
     public function setTitle(string $title): self

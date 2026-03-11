@@ -35,6 +35,7 @@ class PropertyRepository implements PropertyRepositoryInterface
                 'city',
                 'state',
                 'title',
+                'status',
                 'street',
                 'number',
                 'postal_code',
@@ -55,11 +56,45 @@ class PropertyRepository implements PropertyRepositoryInterface
             ->setCity($propertyData->city)
             ->setState($propertyData->state)
             ->setTitle($propertyData->title)
+            ->setStatus($propertyData->status)
             ->setStreet($propertyData->street)
             ->setNumber($propertyData->number)
             ->setPostalCode($propertyData->postal_code)
             ->setDescription($propertyData->description)
             ->setNeighborhood($propertyData->neighborhood)
         , $data->toArray());
+    }
+
+    public function loadById(Property $property): bool
+    {
+        $result = DB::table('properties')
+            ->where('id', $property->getId())
+            ->where('owner_id', $property->getOwner()->getId())
+            ->first()
+        ;
+
+        if (!$result) {
+            return false;
+        }
+
+        $property
+            ->setTitle($result->title)
+            ->setDescription($result->description)
+        ;
+
+        return true;
+    }
+
+    public function delete(Property $property): void
+    {
+        DB::table('properties')
+            ->where('id', $property->getId())
+            ->where('owner_id', $property->getOwner()->getId())
+            ->update([
+                'status' => Property::STATUS_DELETED,
+                'updated_at' => now(),
+                'deleted_at' => now()
+            ])
+        ;
     }
 }

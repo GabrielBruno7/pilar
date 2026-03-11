@@ -17,6 +17,7 @@ class ListPropertiesUseCase
         $propertyItems = array_map(fn($property) => new ListPropertiesItemOutput(
             id: $property->getId(),
             title: $property->getTitle(),
+            status: $property->getStatus(),
             city: $property->getCity(),
             state: $property->getState()
         ), $properties);

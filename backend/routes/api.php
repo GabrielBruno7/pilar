@@ -14,6 +14,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     Route::POST('/property', [PropertyController::class, 'createProperty']);
     Route::GET('/properties', [PropertyController::class, 'listProperties']);
+    Route::DELETE('/property/{id}/delete', [PropertyController::class, 'deleteProperty']);
 });
 
 Route::GET('/health', function () {
