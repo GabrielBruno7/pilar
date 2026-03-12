@@ -47,10 +47,11 @@ class PropertyController extends Controller
                 'message' => $e->getMessage(),
             ], 422);
         } catch (Throwable $e) {
-            report($e);
-
             return response()->json([
-                'message' => 'Internal server error.',
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
         }
     }
@@ -70,10 +71,11 @@ class PropertyController extends Controller
                 'message' => $e->getMessage(),
             ], 422);
         } catch (Throwable $e) {
-            report($e);
-
             return response()->json([
-                'message' => 'Internal server error.',
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
         }
     }
@@ -96,10 +98,11 @@ class PropertyController extends Controller
                 'message' => $e->getMessage(),
             ], 422);
         } catch (Throwable $e) {
-            report($e);
-
             return response()->json([
-                'message' => 'Internal server error.',
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
         }
     }
@@ -132,10 +135,11 @@ class PropertyController extends Controller
                 'message' => $e->getMessage(),
             ], 422);
         } catch (Throwable $e) {
-            report($e);
-
             return response()->json([
-                'message' => 'Internal server error.',
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ], 500);
         }
     }

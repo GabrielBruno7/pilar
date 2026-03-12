@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
-
+use Throwable;
+use RuntimeException;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Core\UseCase\Auth\MeUseCase\MeInput;
 use App\Http\Requests\Auth\LoginRequest;
+use Core\UseCase\Auth\MeUseCase\MeUseCase;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Infrastructure\Auth\AuthRepository;
 use App\Infrastructure\User\UserRepository;
-use Core\UseCase\Auth\LogoutUseCase\LogoutInput;
-use Core\UseCase\Auth\MeUseCase\MeInput;
 use Core\UseCase\Auth\LoginUseCase\LoginInput;
-use Core\UseCase\Auth\RegisterUseCase\RegisterInput;
+use Core\UseCase\Auth\LogoutUseCase\LogoutInput;
 use Core\UseCase\Auth\LoginUseCase\LoginUseCase;
 use Core\UseCase\Auth\LogoutUseCase\LogoutUseCase;
-use Core\UseCase\Auth\MeUseCase\MeUseCase;
+use Core\UseCase\Auth\RegisterUseCase\RegisterInput;
 use Core\UseCase\Auth\RegisterUseCase\RegisterUseCase;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use RuntimeException;
 
 class AuthController extends Controller
 {
@@ -40,6 +40,13 @@ class AuthController extends Controller
             return response()->json([
                 'message' => $e->getMessage(),
             ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
         }
     }
 
@@ -64,7 +71,14 @@ class AuthController extends Controller
         } catch (RuntimeException $e) {
             return response()->json([
                 'message' => $e->getMessage(),
-            ], 401);
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'class' => get_class($e),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
         }
     }
 
