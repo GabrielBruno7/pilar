@@ -21,6 +21,7 @@ class Lease
 
     public const STATUS_DELETED = 'deleted';
     public const STATUS_ACTIVE = 'active';
+    public const STATUS_ENDED = 'ended';
 
     public function __construct(?LeaseRepositoryInterface $persistence = null)
     {

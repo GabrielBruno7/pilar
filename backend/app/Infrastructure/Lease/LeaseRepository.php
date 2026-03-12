@@ -95,4 +95,34 @@ class LeaseRepository implements LeaseRepositoryInterface
 
         return $leases;
     }
+
+    public function loadById(Lease $lease): bool
+    {
+        $result = DB::table('leases')
+            ->where('id', $lease->getId())
+            ->first()
+        ;
+
+        if (!$result) {
+            return false;
+        }
+
+        $lease
+            ->setStatus($result->status)
+        ;
+
+        return true;
+    }
+
+    public function updateToEndedStatus(Lease $lease): void
+    {
+        DB::table('leases')
+            ->where('id', $lease->getId())
+            ->update([
+                'status' => $lease->getStatus(),
+                'end_date' => $lease->getEndDate(),
+                'updated_at' => now(),
+            ])
+        ;
+    }
 }

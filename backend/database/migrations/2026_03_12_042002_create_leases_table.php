@@ -38,7 +38,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
 
             $table->decimal('rent_amount', 10, 2);
-            $table->enum('status', ['active', 'deleted'])->default('active');
+            $table->enum('status', ['active', 'deleted', 'ended'])->default('active');
 
             $table->timestamps();
         });

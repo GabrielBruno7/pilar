@@ -13,6 +13,8 @@ use App\Infrastructure\Lease\LeaseRepository;
 use App\Infrastructure\Tenant\TenantRepository;
 use App\Http\Requests\Lease\CreateLeaseRequest;
 use App\Infrastructure\Property\PropertyRepository;
+use Core\UseCase\Lease\EndLeaseUseCase\EndLeaseInput;
+use Core\UseCase\Lease\EndLeaseUseCase\EndLeaseUseCase;
 use Core\UseCase\Lease\ListLeasesUseCase\ListLeasesInput;
 use Core\UseCase\Lease\ListLeasesUseCase\ListLeasesUseCase;
 use Core\UseCase\Lease\CreateLeaseUseCase\CreateLeaseInput;
@@ -65,6 +67,31 @@ class LeaseController extends Controller
 
             return response()->json([
                 'leases' => $output->leases,
+            ]);
+        } catch (RuntimeException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'message' => config('app.debug') ? $e->getMessage() : 'Internal server error.',
+            ], 500);
+        }
+    }
+
+    public function endLease(string $id): JsonResponse
+    {
+        try {
+            $input = new EndLeaseInput(
+                id: $id,
+            );
+
+            (new EndLeaseUseCase(new LeaseRepository()))
+                ->execute($input)
+            ;
+
+            return response()->json([
+                'message' => 'Lease ended successfully',
             ]);
         } catch (RuntimeException $e) {
             return response()->json([

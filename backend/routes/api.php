@@ -26,4 +26,5 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     Route::POST('/lease', [LeaseController::class, 'createLease']);
     Route::GET('/leases', [LeaseController::class, 'listLeases']);
+    Route::PATCH('/lease/{id}/end', [LeaseController::class, 'endLease']);
 });
