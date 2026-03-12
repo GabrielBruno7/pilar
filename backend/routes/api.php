@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LeaseController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\TenantController;
 use App\Http\Middleware\AuthMiddleware;
@@ -22,4 +23,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     Route::POST('/tenant', [TenantController::class, 'createTenant']);
     Route::GET('/tenants', [TenantController::class, 'listTenants']);
+
+    Route::POST('/lease', [LeaseController::class, 'createLease']);
+    Route::GET('/leases', [LeaseController::class, 'listLeases']);
 });

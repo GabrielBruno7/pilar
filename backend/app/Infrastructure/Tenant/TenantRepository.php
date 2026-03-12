@@ -56,7 +56,30 @@ class TenantRepository implements TenantRepositoryInterface
             ->setName($tenantData->name)
             ->setEmail($tenantData->email)
             ->setPhone($tenantData->phone)
-            ->setDocument($tenantData->document)
-        , $data->toArray());
+            ->setDocument($tenantData->document),
+            $data->toArray())
+        ;
+    }
+
+    public function loadTenantById(Tenant $tenant): bool
+    {
+        $result = DB::table('tenants')
+            ->where('id', $tenant->getId())
+            ->where('owner_id', $tenant->getOwner()->getId())
+            ->first()
+        ;
+
+        if (!$result) {
+            return false;
+        }
+
+        $tenant
+            ->setName($result->name)
+            ->setEmail($result->email)
+            ->setPhone($result->phone)
+            ->setDocument($result->document)
+        ;
+
+        return true;
     }
 }
