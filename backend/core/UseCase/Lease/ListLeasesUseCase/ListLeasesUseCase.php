@@ -18,7 +18,7 @@ class ListLeasesUseCase
         $owner = (new User())->setId($input->ownerId);
         $lease = (new Lease())->setOwner($owner);
 
-        $rows = $this->leaseRepository->listByOwnerId($lease);
+        $leases = $this->leaseRepository->listByOwnerId($lease);
 
         $leases = array_map(fn($lease) => new ListLeasesItemOutput(
             id: $lease->getId(),
@@ -28,8 +28,10 @@ class ListLeasesUseCase
             startDate: $lease->getStartDate(),
             rentAmount: $lease->getRentAmount(),
             tenantId: $lease->getTenant()->getId(),
+            tenantName: $lease->getTenant()->getName(),
             propertyId: $lease->getProperty()->getId(),
-        ), $rows);
+            propertyTitle: $lease->getProperty()->getTitle(),
+        ), $leases);
 
         return new ListLeasesOutput(
             leases: $leases,
