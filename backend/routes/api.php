@@ -1,11 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\AuthMiddleware;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LeaseController;
-use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\TenantController;
-use App\Http\Middleware\AuthMiddleware;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PropertyController;
+use App\Http\Controllers\Api\LeasePaymentController;
 
 Route::GET('/health', function () {return response()->json(['status' => 'ok', 'message' => 'API is healthy']);});
 
@@ -27,4 +28,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
     Route::POST('/lease', [LeaseController::class, 'createLease']);
     Route::GET('/leases', [LeaseController::class, 'listLeases']);
     Route::PATCH('/lease/{id}/end', [LeaseController::class, 'endLease']);
+
+    Route::GET('/lease-payments', [LeasePaymentController::class, 'listLeasePayments']);
+    Route::PATCH('/lease-payments/{id}/pay', [LeasePaymentController::class, 'markAsPaid']);
 });

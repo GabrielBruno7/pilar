@@ -16,6 +16,7 @@ use App\Infrastructure\Property\PropertyRepository;
 use Core\UseCase\Lease\EndLeaseUseCase\EndLeaseInput;
 use Core\UseCase\Lease\EndLeaseUseCase\EndLeaseUseCase;
 use Core\UseCase\Lease\ListLeasesUseCase\ListLeasesInput;
+use App\Infrastructure\LeasePayment\LeasePaymentRepository;
 use Core\UseCase\Lease\ListLeasesUseCase\ListLeasesUseCase;
 use Core\UseCase\Lease\CreateLeaseUseCase\CreateLeaseInput;
 use Core\UseCase\Lease\CreateLeaseUseCase\CreateLeaseUseCase;
@@ -39,7 +40,8 @@ class LeaseController extends Controller
                 new UserRepository(),
                 new LeaseRepository(),
                 new TenantRepository(),
-                new PropertyRepository()
+                new PropertyRepository(),
+                new LeasePaymentRepository(),
             ))->execute($input);
 
             return response()->json(['id' => $output->id], 201);

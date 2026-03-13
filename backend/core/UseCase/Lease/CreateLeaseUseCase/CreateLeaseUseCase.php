@@ -7,22 +7,26 @@ use Illuminate\Support\Str;
 use Core\Domain\Lease\Lease;
 use Core\Domain\Tenant\Tenant;
 use Core\Domain\Property\Property;
+use Core\Domain\LeasePayment\LeasePayment;
 use Core\Domain\User\UserRepositoryInterface;
 use Core\Domain\Lease\LeaseRepositoryInterface;
 use Core\Domain\Tenant\TenantRepositoryInterface;
 use Core\Domain\Property\PropertyRepositoryInterface;
+use Core\Domain\LeasePayment\LeasePaymentRepositoryInterface;
 
 class CreateLeaseUseCase
 {
-    private Property $property;
-    private Tenant $tenant;
     private Lease $lease;
+    private Tenant $tenant;
+    private Property $property;
+    private LeasePayment $leasePayment;
 
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private LeaseRepositoryInterface $leaseRepository,
         private TenantRepositoryInterface $tenantRepository,
         private PropertyRepositoryInterface $propertyRepository,
+        private LeasePaymentRepositoryInterface $leasePaymentRepository,
     ) {}
 
     public function execute(CreateLeaseInput $input): CreateLeaseOutput
@@ -65,9 +69,41 @@ class CreateLeaseUseCase
 
         $this->leaseRepository->create($this->lease);
 
+        $this->createLeasePayment();
+
         return new CreateLeaseOutput(
             id: $this->lease->getId(),
         );
+    }
+
+    private function createLeasePayment(): void
+    {    
+        $referenceMonth = substr($this->lease->getStartDate(), 0, 7);
+
+        $dueDate = sprintf(
+            '%s-%02d',
+            $referenceMonth,
+            $this->lease->getDueDay()
+        );
+
+        $this->leasePayment = (new LeasePayment())
+            ->setDueDate($dueDate)
+            ->setLease($this->lease)
+            ->setId((string) Str::uuid())
+            ->setOwner($this->lease->getOwner())
+            ->setReferenceMonth($referenceMonth)
+            ->setStatus(LeasePayment::STATUS_PENDING)
+            ->setExpectedAmount($this->lease->getRentAmount())
+        ;
+
+        if (!$this->isLeasePaymentAlreadyExistsForReferenceMonth()) {
+            $this->leasePaymentRepository->create($this->leasePayment);
+        }
+    }
+
+    private function isLeasePaymentAlreadyExistsForReferenceMonth(): bool
+    {
+        return $this->leasePaymentRepository->existsByLeaseIdAndReferenceMonth($this->leasePayment) ? true : false;
     }
 
     private function checkIfPropertyExist(): Property
