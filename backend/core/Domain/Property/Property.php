@@ -3,6 +3,7 @@
 namespace Core\Domain\Property;
 
 use Core\Domain\User\User;
+use Core\Domain\Lease\Lease;
 
 class Property
 {
@@ -10,6 +11,7 @@ class Property
     private string $title;
     private string $status;
     private ?string $id = null;
+    private ?Lease $lease = null;
     private ?string $city = null;
     private ?string $state = null;
     private ?string $street = null;
@@ -67,6 +69,18 @@ class Property
     public function getStatus(): string
     {
         return $this->status;
+    }
+
+    public function setLease(?Lease $lease): self
+    {
+        $this->lease = $lease;
+
+        return $this;
+    }
+
+    public function getLease(): ?Lease
+    {
+        return $this->lease;
     }
 
     public function setTitle(string $title): self

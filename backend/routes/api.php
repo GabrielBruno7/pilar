@@ -19,6 +19,7 @@ Route::middleware([AuthMiddleware::class])->group(function () {
 
     Route::POST('/property', [PropertyController::class, 'createProperty']);
     Route::GET('/properties', [PropertyController::class, 'listProperties']);
+    Route::GET('/property/{id}', [PropertyController::class, 'showProperty']);
     Route::DELETE('/property/{id}', [PropertyController::class, 'deleteProperty']);
     Route::PATCH('/property/{id}', [PropertyController::class, 'updateProperty']);
 
