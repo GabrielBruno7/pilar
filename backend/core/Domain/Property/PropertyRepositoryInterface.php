@@ -8,4 +8,5 @@ interface PropertyRepositoryInterface
     public function loadById(Property $Property): bool;
     public function create(Property $Property): Property;
     public function findPropertiesByOwnerId(string $ownerId): array;
+    public function findRecentProperties(Property $property): array;
 }

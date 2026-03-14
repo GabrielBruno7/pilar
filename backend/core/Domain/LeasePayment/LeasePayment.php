@@ -9,8 +9,8 @@ class LeasePayment
 {
     private string $id;
     private User $owner;
-    private string $status;
     private Lease $lease;
+    private string $status;
     private string $dueDate;
     private float $expectedAmount;
     private ?string $paidAt = null;

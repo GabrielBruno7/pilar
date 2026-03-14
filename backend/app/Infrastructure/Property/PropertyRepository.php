@@ -67,6 +67,52 @@ class PropertyRepository implements PropertyRepositoryInterface
         , $data->toArray());
     }
 
+    public function findRecentProperties(Property $property): array
+    {
+        $data = DB::table('properties')
+            ->select(
+                'id',
+                'city',
+                'state',
+                'title',
+                'status',
+                'street',
+                'number',
+                'postal_code',
+                'description',
+                'neighborhood'
+            )
+            ->where('owner_id', $property->getOwner()->getId())
+            ->where('status', Property::STATUS_ACTIVE)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get()
+        ;
+
+        if ($data->isEmpty()) {
+            return [];
+        }
+
+        $properties = [];
+
+        foreach ($data as $propertyData) {
+            $properties[] = (new Property())
+                ->setId($propertyData->id)
+                ->setCity($propertyData->city)
+                ->setState($propertyData->state)
+                ->setTitle($propertyData->title)
+                ->setStatus($propertyData->status)
+                ->setStreet($propertyData->street)
+                ->setNumber($propertyData->number)
+                ->setPostalCode($propertyData->postal_code)
+                ->setDescription($propertyData->description)
+                ->setNeighborhood($propertyData->neighborhood)
+            ;
+        }
+
+        return $properties;
+    }
+
     public function loadById(Property $property): bool
     {
         $result = DB::table('properties as p')
