@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -28,17 +29,21 @@ const App = () => (
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/cadastro" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/imoveis" element={<PropertiesPage />} />
-          <Route path="/imoveis/novo" element={<PropertyFormPage />} />
-          <Route path="/imoveis/:id" element={<PropertyDetailPage />} />
-          <Route path="/imoveis/:id/editar" element={<PropertyFormPage />} />
-          <Route path="/inquilinos" element={<TenantsPage />} />
-          <Route path="/inquilinos/novo" element={<TenantFormPage />} />
-          <Route path="/contratos" element={<ContractsPage />} />
-          <Route path="/contratos/novo" element={<ContractFormPage />} />
-          <Route path="/pagamentos" element={<PaymentsPage />} />
-          <Route path="/perfil" element={<ProfilePage />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/imoveis" element={<PropertiesPage />} />
+            <Route path="/imoveis/novo" element={<PropertyFormPage />} />
+            <Route path="/imoveis/:id" element={<PropertyDetailPage />} />
+            <Route path="/imoveis/:id/editar" element={<PropertyFormPage />} />
+            <Route path="/inquilinos" element={<TenantsPage />} />
+            <Route path="/inquilinos/novo" element={<TenantFormPage />} />
+            <Route path="/contratos" element={<ContractsPage />} />
+            <Route path="/contratos/novo" element={<ContractFormPage />} />
+            <Route path="/pagamentos" element={<PaymentsPage />} />
+            <Route path="/perfil" element={<ProfilePage />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

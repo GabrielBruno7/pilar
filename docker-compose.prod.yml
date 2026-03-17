@@ -58,17 +58,28 @@ services:
       QUEUE_CONNECTION: ${QUEUE_CONNECTION}
     command: sh -c "php artisan migrate --force && php-fpm"
 
+  frontend-builder:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pilar-frontend-builder
+    command: sh -c "cp -r /app/dist/. /frontend-dist"
+    volumes:
+      - frontend_dist:/frontend-dist
+
   nginx:
     image: nginx:alpine
     container_name: pilar-nginx
     restart: unless-stopped
     depends_on:
       - backend
+      - frontend-builder
     ports:
       - "80:80"
     volumes:
-      - ./backend/public:/var/www/public:ro
+      - frontend_dist:/usr/share/nginx/html:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   mysql_data:
+  frontend_dist:
