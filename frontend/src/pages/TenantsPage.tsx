@@ -126,7 +126,6 @@ export default function TenantsPage() {
             ))}
           </TableBody>
         </Table>
-      </div>
       <Pagination className="mt-6">
         <PaginationContent>
           <PaginationItem>
@@ -165,6 +164,7 @@ export default function TenantsPage() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+    </div>
     </AppLayout>
   );
 }
