@@ -7,14 +7,30 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { listTenants, Tenant } from "@/services/tenant";
 import { toast } from "@/components/ui/sonner";
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+} from "@/components/ui/pagination";
 
 export default function TenantsPage() {
   const [search, setSearch] = useState("");
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(10);
 
   useEffect(() => {
     setLoading(true);
@@ -31,6 +47,25 @@ export default function TenantsPage() {
     t.name.toLowerCase().includes(search.toLowerCase()) ||
     t.email.toLowerCase().includes(search.toLowerCase())
   );
+  const total = filtered.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+
+  function maskPhone(phone: string) {
+    return phone
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4,5})(\d{4})$/, "$1-$2");
+  }
+
+  function maskDocument(doc: string) {
+    const clean = doc.replace(/\D/g, "");
+    if (clean.length <= 11) {
+      return clean.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else {
+      return clean.replace(/(\d{2})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1/$2").replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+    }
+  }
 
   return (
     <AppLayout>
@@ -55,7 +90,7 @@ export default function TenantsPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-lg bg-card shadow-card">
+      <div className="mt-6 overflow-hidden rounded-lg bg-card shadow-card border-l-4 border-orange-500 pb-8" style={{ borderLeftWidth: '6px', borderColor: '#fb923c' }}>
         <Table>
           <TableHeader>
             <TableRow className="border-b bg-muted/50">
@@ -76,22 +111,60 @@ export default function TenantsPage() {
                 <TableCell colSpan={4} className="text-center text-destructive">{error}</TableCell>
               </TableRow>
             )}
-            {!loading && !error && filtered.length === 0 && (
+            {!loading && !error && paginated.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum inquilino encontrado.</TableCell>
               </TableRow>
             )}
-            {!loading && !error && filtered.map((t) => (
-              <TableRow key={t.id} className="transition-colors hover:bg-muted/30">
+            {!loading && !error && paginated.map((t) => (
+              <TableRow key={t.id} className="transition-colors">
                 <TableCell className="font-medium text-foreground">{t.name}</TableCell>
                 <TableCell className="text-muted-foreground">{t.email}</TableCell>
-                <TableCell className="text-muted-foreground">{t.phone}</TableCell>
-                <TableCell className="tabular-nums text-muted-foreground">{t.document}</TableCell>
+                <TableCell className="text-muted-foreground">{maskPhone(t.phone)}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{maskDocument(t.document)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+      <Pagination className="mt-6">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (page > 1) setPage(page - 1);
+              }}
+              aria-disabled={page === 1}
+            />
+          </PaginationItem>
+          {Array.from({ length: lastPage }, (_, i) => (
+            <PaginationItem key={i + 1}>
+              <PaginationLink
+                href="#"
+                isActive={page === i + 1}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(i + 1);
+                }}
+              >
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (page < lastPage) setPage(page + 1);
+              }}
+              aria-disabled={page === lastPage}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </AppLayout>
   );
 }
