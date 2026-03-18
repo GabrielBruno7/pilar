@@ -44,7 +44,16 @@ export async function getMe() {
 }
 
 export async function logout() {
-  return apiFetch<void>("/logout", {
-    method: "POST",
-  });
+  try {
+    await apiFetch<void>("/logout", {
+      method: "POST",
+    });
+  } catch (_) {
+  }
+
+  localStorage.removeItem("token");
+  localStorage.removeItem("user_name");
+  localStorage.removeItem("user_email");
+
+  sessionStorage.clear();
 }

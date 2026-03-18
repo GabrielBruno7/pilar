@@ -7,6 +7,11 @@ import { LogOut, Mail, User, Phone } from "lucide-react";
 export default function ProfilePage() {
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
   return (
     <AppLayout>
       <PageHeader title="Perfil" />
@@ -42,7 +47,7 @@ export default function ProfilePage() {
 
         <Button
           variant="outline"
-          onClick={() => navigate("/")}
+          onClick={handleLogout}
           className="border-border text-destructive hover:bg-destructive/10"
         >
           <LogOut className="mr-2 h-4 w-4" />
