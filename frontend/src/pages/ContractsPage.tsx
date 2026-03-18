@@ -1,18 +1,85 @@
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { StatusBadge, StatusType } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Plus, XCircle } from "lucide-react";
+import { listLeases, type Lease } from "@/services/lease";
 
-const mockContracts = [
-  { id: 1, property: "Apt 301 - Ed. Solar", tenant: "Maria Silva", start: "01/01/2025", end: "31/12/2025", dueDay: 15, rent: "R$ 2.500,00", status: "ativo" as StatusType },
-  { id: 2, property: "Casa Rua das Flores", tenant: "João Santos", start: "01/03/2025", end: "28/02/2026", dueDay: 10, rent: "R$ 1.800,00", status: "ativo" as StatusType },
-  { id: 3, property: "Sala 12 - Centro Emp.", tenant: "Carlos Oliveira", start: "01/06/2024", end: "31/05/2025", dueDay: 5, rent: "R$ 3.500,00", status: "encerrado" as StatusType },
-  { id: 4, property: "Apt 105 - Res. Park", tenant: "Ana Costa", start: "01/02/2025", end: "31/01/2026", dueDay: 20, rent: "R$ 3.200,00", status: "ativo" as StatusType },
-];
+function formatCurrency(value: string | number) {
+  const numberValue = Number(value);
+
+  if (Number.isNaN(numberValue)) {
+    return "R$ 0,00";
+  }
+
+  return numberValue.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "-";
+
+  const parts = value.split("-");
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+
+  return value;
+}
+
+function formatStatus(status: string) {
+  if (status === "active") return "Ativo";
+  if (status === "ended") return "Encerrado";
+  return status;
+}
 
 export default function ContractsPage() {
+  const [leases, setLeases] = useState<Lease[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+
+  const perPage = 10;
+
+  useEffect(() => {
+    async function fetchLeases() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await listLeases();
+        setLeases(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Erro ao carregar contratos:", err);
+        setError("Erro ao carregar contratos.");
+        setLeases([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLeases();
+  }, []);
+
+  const total = leases.length;
+  const lastPage = Math.max(1, Math.ceil(total / perPage));
+
+  const paginatedLeases = useMemo(() => {
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    return leases.slice(start, end);
+  }, [leases, page]);
+
+  useEffect(() => {
+    if (page > lastPage) {
+      setPage(lastPage);
+    }
+  }, [page, lastPage]);
+
   return (
     <AppLayout>
       <PageHeader title="Contratos">
@@ -24,70 +91,127 @@ export default function ContractsPage() {
         </Link>
       </PageHeader>
 
-      {/* Desktop table */}
-      <div className="mt-6 hidden overflow-hidden rounded-lg bg-card shadow-card md:block">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Imóvel</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Inquilino</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Venc.</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Início</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Fim</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Aluguel</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockContracts.map((c) => (
-              <tr key={c.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
-                <td className="px-4 py-3 font-medium text-foreground">{c.property}</td>
-                <td className="px-4 py-3 text-muted-foreground">{c.tenant}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">Dia {c.dueDay}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{c.start}</td>
-                <td className="px-4 py-3 tabular-nums text-muted-foreground">{c.end}</td>
-                <td className="px-4 py-3 tabular-nums font-medium text-foreground">{c.rent}</td>
-                <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
-                <td className="px-4 py-3">
-                  {c.status === "ativo" && (
-                    <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive">
-                      <XCircle className="mr-1 h-3.5 w-3.5" />
-                      Encerrar
-                    </Button>
-                  )}
-                </td>
+      <div
+        className="mt-6 overflow-hidden rounded-lg border bg-card shadow-sm"
+        style={{ borderLeft: "6px solid #fb923c" }}
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Imóvel
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Inquilino
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Início
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Fim
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Valor
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Vencimento
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Status
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
 
-      {/* Mobile cards */}
-      <div className="mt-6 space-y-2 md:hidden">
-        {mockContracts.map((c) => (
-          <div key={c.id} className="rounded-lg bg-card p-4 shadow-card">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm font-medium text-foreground">{c.property}</p>
-                <p className="text-xs text-muted-foreground">{c.tenant}</p>
-              </div>
-              <StatusBadge status={c.status} />
-            </div>
-            <div className="mt-3 flex items-center justify-between">
-              <div className="text-xs text-muted-foreground">
-                <span className="tabular-nums">{c.start}</span> → <span className="tabular-nums">{c.end}</span>
-              </div>
-              <p className="text-sm font-semibold tabular-nums text-foreground">{c.rent}</p>
-            </div>
-            {c.status === "ativo" && (
-              <Button variant="ghost" size="sm" className="mt-2 w-full text-muted-foreground hover:text-destructive">
-                <XCircle className="mr-1 h-3.5 w-3.5" />
-                Encerrar Contrato
+            <tbody>
+              {loading && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    Carregando...
+                  </td>
+                </tr>
+              )}
+
+              {!loading && error && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-destructive">
+                    {error}
+                  </td>
+                </tr>
+              )}
+
+              {!loading && !error && paginatedLeases.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                    Nenhum contrato encontrado.
+                  </td>
+                </tr>
+              )}
+
+              {!loading &&
+                !error &&
+                paginatedLeases.map((lease) => (
+                  <tr key={lease.id} className="border-b hover:bg-muted/30">
+                    <td className="px-4 py-4 font-medium text-foreground">
+                      {lease.propertyTitle}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      {lease.tenantName}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      {formatDate(lease.startDate)}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      {formatDate(lease.endDate)}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      {formatCurrency(lease.rentAmount)}
+                    </td>
+                    <td className="px-4 py-4 text-muted-foreground">
+                      Dia {lease.dueDay}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                          lease.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {formatStatus(lease.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+
+        {!loading && !error && total > 0 && (
+          <div className="flex items-center justify-between border-t px-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Página {page} de {lastPage}
+            </p>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={page === 1}
+              >
+                Anterior
               </Button>
-            )}
+
+              <Button
+                variant="outline"
+                onClick={() => setPage((prev) => Math.min(lastPage, prev + 1))}
+                disabled={page === lastPage}
+              >
+                Próxima
+              </Button>
+            </div>
           </div>
-        ))}
+        )}
       </div>
     </AppLayout>
   );

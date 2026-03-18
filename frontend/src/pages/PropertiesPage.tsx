@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
@@ -14,14 +14,6 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-} from "@/components/ui/pagination";
 import { listProperties, deleteProperty, Property } from "@/services/property";
 
 export default function PropertiesPage() {
@@ -31,7 +23,8 @@ export default function PropertiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [perPage] = useState(10);
+
+  const perPage = 10;
 
   useEffect(() => {
     setLoading(true);
@@ -48,6 +41,7 @@ export default function PropertiesPage() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Tem certeza que deseja excluir este imóvel?")) return;
+
     setDeletingId(id);
     try {
       await deleteProperty(id);
@@ -59,13 +53,30 @@ export default function PropertiesPage() {
     }
   };
 
-  const filtered = properties.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase()) ||
-    (p.city?.toLowerCase().includes(search.toLowerCase()) ?? false)
+  const filtered = properties.filter(
+    (p) =>
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      (p.city?.toLowerCase().includes(search.toLowerCase()) ?? false)
   );
+
   const total = filtered.length;
   const lastPage = Math.max(1, Math.ceil(total / perPage));
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    return filtered.slice(start, end);
+  }, [filtered, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (page > lastPage) {
+      setPage(lastPage);
+    }
+  }, [page, lastPage]);
 
   return (
     <AppLayout>
@@ -90,9 +101,14 @@ export default function PropertiesPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-lg bg-card shadow-card border-l-4 border-orange-500 pb-8" style={{ borderLeftWidth: '6px', borderColor: '#fb923c' }}>
+      <div
+        className="mt-6 overflow-hidden rounded-lg bg-card shadow-card border-l-4 border-orange-500"
+        style={{ borderLeftWidth: "6px", borderColor: "#fb923c" }}
+      >
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground">Carregando imóveis...</div>
+          <div className="p-8 text-center text-muted-foreground">
+            Carregando imóveis...
+          </div>
         ) : error ? (
           <div className="p-8 text-center text-destructive">{error}</div>
         ) : (
@@ -107,30 +123,58 @@ export default function PropertiesPage() {
                   <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {paginated.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">Nenhum imóvel encontrado.</TableCell>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center text-muted-foreground"
+                    >
+                      Nenhum imóvel encontrado.
+                    </TableCell>
                   </TableRow>
                 )}
+
                 {paginated.map((p) => (
-                  <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
-                    <TableCell className="font-medium text-foreground">{p.title}</TableCell>
-                    <TableCell className="text-muted-foreground">{p.city}</TableCell>
-                    <TableCell className="text-muted-foreground">{p.state}</TableCell>
-                    <TableCell><StatusBadge status={p.status as StatusType} /></TableCell>
+                  <TableRow
+                    key={p.id}
+                    className="transition-colors hover:bg-muted/30"
+                  >
+                    <TableCell className="font-medium text-foreground">
+                      {p.title}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {p.city}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {p.state}
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={p.status as StatusType} />
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Link to={`/imoveis/${p.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
+
                         <Link to={`/imoveis/${p.id}/editar`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </Link>
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -147,45 +191,34 @@ export default function PropertiesPage() {
                 ))}
               </TableBody>
             </Table>
-            {/* Espaço extra removido, padding agora no card */}
-            <Pagination className="mt-6">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (page > 1) setPage(page - 1);
-                    }}
-                    aria-disabled={page === 1}
-                  />
-                </PaginationItem>
-                {Array.from({ length: lastPage }, (_, i) => (
-                  <PaginationItem key={i + 1}>
-                    <PaginationLink
-                      href="#"
-                      isActive={page === i + 1}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPage(i + 1);
-                      }}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (page < lastPage) setPage(page + 1);
-                    }}
-                    aria-disabled={page === lastPage}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+
+            {!loading && !error && total > 0 && (
+              <div className="flex items-center justify-between border-t px-4 py-4">
+                <p className="text-sm text-muted-foreground">
+                  Página {page} de {lastPage}
+                </p>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    disabled={page === 1}
+                  >
+                    Anterior
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      setPage((prev) => Math.min(lastPage, prev + 1))
+                    }
+                    disabled={page === lastPage}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
