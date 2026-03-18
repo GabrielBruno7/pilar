@@ -10,3 +10,7 @@ if [ "$CONFIRM" != "SIM" ]; then
 fi
 
 docker exec -it pilar-backend php artisan migrate:fresh
+
+if [ -f "$(dirname "$0")/post-fixtures.sh" ]; then
+  bash "$(dirname "$0")/post-fixtures.sh"
+fi

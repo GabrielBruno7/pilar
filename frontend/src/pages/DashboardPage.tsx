@@ -68,7 +68,6 @@ export default function DashboardPage() {
       </motion.div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-7">
-        {/* Left: Imóveis que precisam de atenção */}
         <div className="lg:col-span-3">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-foreground">Imóveis que precisam de atenção</h2>

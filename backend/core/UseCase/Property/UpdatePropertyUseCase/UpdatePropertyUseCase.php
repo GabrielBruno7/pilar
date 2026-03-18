@@ -60,6 +60,18 @@ class UpdatePropertyUseCase
             $this->property->setState($input->state);
         }
 
+        if ($input->area !== null) {
+            $this->property->setArea($input->area);
+        }
+
+        if ($input->parking !== null) {
+            $this->property->setParking($input->parking);
+        }
+
+        if ($input->bedrooms !== null) {
+            $this->property->setBedrooms($input->bedrooms);
+        }
+
         $this->propertyRepository->update($this->property);
     }
 

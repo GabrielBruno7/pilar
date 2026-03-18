@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
-import { createProperty } from "@/services/property";
+import { getProperty, updateProperty } from "@/services/property";
 import { PageHeader } from "@/components/PageHeader";
 
 type FormData = {
@@ -25,9 +25,10 @@ type FormData = {
 
 type FormErrors = Partial<Record<keyof FormData, string>>;
 
-export default function PropertyFormPage() {
+export default function PropertyEditPage() {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [form, setForm] = useState<FormData>({
     title: "",
@@ -47,64 +48,74 @@ export default function PropertyFormPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    getProperty(id)
+      .then((data) => {
+        setForm({
+          title: data.title || "",
+          description: data.description || "",
+          cep: data.cep || "",
+          street: data.street || "",
+          number: data.number || "",
+          neighborhood: data.neighborhood || "",
+          city: data.city || "",
+          state: data.state || "",
+          area: data.area ? String(data.area) : "",
+          bedrooms: data.bedrooms ? String(data.bedrooms) : "",
+          parking: data.parking ? String(data.parking) : "",
+        });
+        setError(null);
+      })
+      .catch((err) => {
+        setError(err.message || "Erro ao carregar imóvel.");
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
   const update = (field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-
     if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: undefined,
-      }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
   const validateStep1 = () => {
     const newErrors: FormErrors = {};
-
     if (!form.title.trim()) newErrors.title = "Título é obrigatório";
     if (!form.description.trim()) newErrors.description = "Descrição é obrigatória";
     if (!form.area.trim()) newErrors.area = "Área é obrigatória";
     if (!form.bedrooms.trim()) newErrors.bedrooms = "Quartos é obrigatório";
     if (!form.parking.trim()) newErrors.parking = "Vagas é obrigatório";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateStep2 = () => {
     const newErrors: FormErrors = {};
-
     if (!form.cep.trim()) newErrors.cep = "CEP é obrigatório";
     if (!form.street.trim()) newErrors.street = "Rua é obrigatória";
     if (!form.number.trim()) newErrors.number = "Número é obrigatório";
     if (!form.neighborhood.trim()) newErrors.neighborhood = "Bairro é obrigatório";
-    if (!form.city.trim()) newErrors.city = "Cidade é obrigatória";
+    if (!form.city.trim()) newErrors.city = "Cidade é obrigatório";
     if (!form.state.trim()) newErrors.state = "Estado é obrigatório";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const goToStep2 = () => {
     setError(null);
-
-    if (!validateStep1()) {
-      return;
-    }
-
+    if (!validateStep1()) return;
     setStep(2);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (!validateStep2()) {
-      return;
-    }
-
+    if (!validateStep2()) return;
+    if (!id) return;
     setLoading(true);
-
     try {
       const payload = {
         title: form.title,
@@ -119,26 +130,22 @@ export default function PropertyFormPage() {
         bedrooms: form.bedrooms ? Number(form.bedrooms) : undefined,
         parking: form.parking ? Number(form.parking) : undefined,
       };
-
-      await createProperty(payload);
-      navigate("/imoveis");
+      await updateProperty(id, payload);
+      navigate(`/imoveis/${id}`);
     } catch (err: any) {
-      setError(err?.message || "Erro ao criar imóvel.");
+      setError(err?.message || "Erro ao atualizar imóvel.");
     } finally {
       setLoading(false);
     }
   };
 
-  const labelClass =
-    "text-xs font-medium uppercase tracking-wider text-muted-foreground";
-
+  const labelClass = "text-xs font-medium uppercase tracking-wider text-muted-foreground";
   const getInputClass = (field: keyof FormData) =>
     `border-none bg-muted ring-1 ${
       errors[field]
         ? "ring-red-500 focus-visible:ring-red-500"
         : "ring-border focus-visible:ring-2 focus-visible:ring-primary"
     }`;
-
   const getTextareaClass = (field: keyof FormData) =>
     `min-h-[80px] border-none bg-muted ring-1 ${
       errors[field]
@@ -158,7 +165,7 @@ export default function PropertyFormPage() {
           Voltar
         </Button>
 
-        <PageHeader title="Novo Imóvel" />
+        <PageHeader title="Editar Imóvel" />
 
         <div className="mb-6 mt-6">
           <div className="flex items-center justify-center gap-4">
@@ -182,9 +189,7 @@ export default function PropertyFormPage() {
                 Informações
               </span>
             </div>
-
             <div className="h-px w-12 bg-border" />
-
             <div className="flex items-center gap-3">
               <div
                 className={`flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
@@ -216,11 +221,10 @@ export default function PropertyFormPage() {
 
         <form onSubmit={handleSubmit} className="mt-6">
           {step === 1 && (
-            <div className="space-y-4 rounded-lg bg-card p-6 shadow-card border-l-4 border-orange-500" style={{ borderLeftWidth: '6px', borderColor: '#fb923c' }}>
+            <div className="space-y-4 rounded-lg bg-card p-6 shadow-card">
               <h2 className="text-sm font-semibold text-foreground">
                 Informações
               </h2>
-
               <div className="space-y-2">
                 <Label className={labelClass}>Título</Label>
                 <Input
@@ -233,7 +237,6 @@ export default function PropertyFormPage() {
                   <p className="text-sm text-red-500">{errors.title}</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label className={labelClass}>Descrição</Label>
                 <Textarea
@@ -246,7 +249,6 @@ export default function PropertyFormPage() {
                   <p className="text-sm text-red-500">{errors.description}</p>
                 )}
               </div>
-
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label className={labelClass}>Área (m²)</Label>
@@ -262,7 +264,6 @@ export default function PropertyFormPage() {
                     <p className="text-sm text-red-500">{errors.area}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label className={labelClass}>Quartos</Label>
                   <Input
@@ -277,7 +278,6 @@ export default function PropertyFormPage() {
                     <p className="text-sm text-red-500">{errors.bedrooms}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label className={labelClass}>Vagas</Label>
                   <Input
@@ -293,7 +293,6 @@ export default function PropertyFormPage() {
                   )}
                 </div>
               </div>
-
               <div className="mt-6 flex gap-3">
                 <Button
                   type="button"
@@ -302,7 +301,6 @@ export default function PropertyFormPage() {
                 >
                   Próximo
                 </Button>
-
                 <Button
                   type="button"
                   variant="outline"
@@ -314,13 +312,11 @@ export default function PropertyFormPage() {
               </div>
             </div>
           )}
-
           {step === 2 && (
-            <div className="space-y-4 rounded-lg bg-card p-6 shadow-card border-l-4 border-orange-500" style={{ borderLeftWidth: '6px', borderColor: '#fb923c' }}>
+            <div className="space-y-4 rounded-lg bg-card p-6 shadow-card">
               <h2 className="text-sm font-semibold text-foreground">
                 Endereço
               </h2>
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label className={labelClass}>CEP</Label>
@@ -334,7 +330,6 @@ export default function PropertyFormPage() {
                     <p className="text-sm text-red-500">{errors.cep}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label className={labelClass}>Número</Label>
                   <Input
@@ -348,7 +343,6 @@ export default function PropertyFormPage() {
                   )}
                 </div>
               </div>
-
               <div className="space-y-2">
                 <Label className={labelClass}>Rua</Label>
                 <Input
@@ -361,7 +355,6 @@ export default function PropertyFormPage() {
                   <p className="text-sm text-red-500">{errors.street}</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label className={labelClass}>Bairro</Label>
                 <Input
@@ -374,7 +367,6 @@ export default function PropertyFormPage() {
                   <p className="text-sm text-red-500">{errors.neighborhood}</p>
                 )}
               </div>
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label className={labelClass}>Cidade</Label>
@@ -388,7 +380,6 @@ export default function PropertyFormPage() {
                     <p className="text-sm text-red-500">{errors.city}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label className={labelClass}>Estado</Label>
                   <Input
@@ -402,16 +393,14 @@ export default function PropertyFormPage() {
                   )}
                 </div>
               </div>
-
               <div className="mt-6 flex gap-3">
                 <Button
                   type="submit"
                   className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
                   disabled={loading}
                 >
-                  {loading ? "Salvando..." : "Salvar Imóvel"}
+                  {loading ? "Salvando..." : "Salvar Alterações"}
                 </Button>
-
                 <Button
                   type="button"
                   variant="outline"

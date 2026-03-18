@@ -17,6 +17,7 @@ import ContractFormPage from "./pages/ContractFormPage";
 import PaymentsPage from "./pages/PaymentsPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import PropertyEditPage from "./pages/PropertyEditPage";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +36,7 @@ const App = () => (
             <Route path="/imoveis" element={<PropertiesPage />} />
             <Route path="/imoveis/novo" element={<PropertyFormPage />} />
             <Route path="/imoveis/:id" element={<PropertyDetailPage />} />
-            <Route path="/imoveis/:id/editar" element={<PropertyFormPage />} />
+            <Route path="/imoveis/:id/editar" element={<PropertyEditPage />} />
             <Route path="/inquilinos" element={<TenantsPage />} />
             <Route path="/inquilinos/novo" element={<TenantFormPage />} />
             <Route path="/contratos" element={<ContractsPage />} />

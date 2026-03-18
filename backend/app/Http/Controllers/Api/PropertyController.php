@@ -28,6 +28,9 @@ class PropertyController extends Controller
     {
         try {
             $input = new CreatePropertyInput(
+                area: $request->input('area'),
+                parking: $request->input('parking'),
+                bedrooms: $request->input('bedrooms'),
                 city: $request->string('city')->toString(),
                 title: $request->string('title')->toString(),
                 state: $request->string('state')->toString(),
@@ -115,11 +118,14 @@ class PropertyController extends Controller
             $input = new UpdatePropertyInput(
                 propertyId: $id,
                 userId: $request->attributes->get('user_id'),
+                area: $request->has('area') ? $request->input('area') : null,
                 city: $request->has('city') ? $request->input('city') : null,
                 title: $request->has('title') ? $request->input('title') : null,
                 state: $request->has('state') ? $request->input('state') : null,
                 street: $request->has('street') ? $request->input('street') : null,
                 number: $request->has('number') ? $request->input('number') : null,
+                parking: $request->has('parking') ? $request->input('parking') : null,
+                bedrooms: $request->has('bedrooms') ? $request->input('bedrooms') : null,
                 postalCode: $request->has('postal_code') ? $request->input('postal_code') : null,
                 description: $request->has('description') ? $request->input('description') : null,
                 neighborhood: $request->has('neighborhood') ? $request->input('neighborhood') : null,
@@ -180,11 +186,14 @@ class PropertyController extends Controller
 
             $property = [
                 'id' => $output->property->getId(),
+                'area' => $output->property->getArea(),
                 'city' => $output->property->getCity(),
                 'title' => $output->property->getTitle(),
                 'state' => $output->property->getState(),
                 'street' => $output->property->getStreet(),
                 'number' => $output->property->getNumber(),
+                'parking' => $output->property->getParking(),
+                'bedrooms' => $output->property->getBedrooms(),
                 'postal_code' => $output->property->getPostalCode(),
                 'description' => $output->property->getDescription(),
                 'neighborhood' => $output->property->getNeighborhood(),

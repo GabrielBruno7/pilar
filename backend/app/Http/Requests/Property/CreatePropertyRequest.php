@@ -14,14 +14,17 @@ final class CreatePropertyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
-            'street' => ['nullable', 'string', 'max:255'],
-            'number' => ['nullable', 'string', 'max:20'],
-            'neighborhood' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'state' => ['nullable', 'string', 'max:10'],
+            'area' => ['nullable', 'numeric', 'min:0'],
+            'title' => ['required', 'string', 'max:255'],
+            'number' => ['nullable', 'string', 'max:20'],
+            'street' => ['nullable', 'string', 'max:255'],
+            'parking' => ['nullable', 'integer', 'min:0'],
+            'bedrooms' => ['nullable', 'integer', 'min:0'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'neighborhood' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

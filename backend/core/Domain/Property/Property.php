@@ -11,8 +11,11 @@ class Property
     private string $title;
     private string $status;
     private ?string $id = null;
+    private ?int $parking = null;
+    private ?string $area = null;
     private ?Lease $lease = null;
     private ?string $city = null;
+    private ?int $bedrooms = null;
     private ?string $state = null;
     private ?string $street = null;
     private ?string $number = null;
@@ -177,5 +180,41 @@ class Property
     public function getState(): ?string
     {
         return $this->state;
+    }
+
+    public function setArea(?string $area): self
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    public function getArea(): ?string
+    {
+        return $this->area;
+    }
+
+    public function setBedrooms(?int $bedrooms): self
+    {
+        $this->bedrooms = $bedrooms;
+
+        return $this;
+    }
+
+    public function getBedrooms(): ?int
+    {
+        return $this->bedrooms;
+    }
+
+    public function setParking(?int $parking): self
+    {
+        $this->parking = $parking;
+
+        return $this;
+    }
+
+    public function getParking(): ?int
+    {
+        return $this->parking;
     }
 }

@@ -15,11 +15,14 @@ class PropertyRepository implements PropertyRepositoryInterface
         DB::table('properties')->insert([
             'created_at' => now(),
             'id' => $property->getId(),
+            'area' => $property->getArea(),
             'city' => $property->getCity(),
             'state' => $property->getState(),
             'title' => $property->getTitle(),
             'street' => $property->getStreet(),
             'number' => $property->getNumber(),
+            'parking' => $property->getParking(),
+            'bedrooms' => $property->getBedrooms(),
             'postal_code' => $property->getPostalCode(),
             'owner_id' => $property->getOwner()->getId(),
             'description' => $property->getDescription(),
@@ -46,6 +49,8 @@ class PropertyRepository implements PropertyRepositoryInterface
             )
             ->where('owner_id', $ownerId)
             ->orderBy('created_at', 'desc')
+            ->where('status', '!=', Property::STATUS_DELETED)
+            ->where('deleted_at', null)
             ->get()
         ;
 
@@ -119,20 +124,23 @@ class PropertyRepository implements PropertyRepositoryInterface
             ->select(
                 'p.id',
                 'p.city',
+                'p.area',
                 'p.state',
                 'p.title',
                 'p.status',
                 'p.street',
                 'p.number',
+                'p.parking',
+                'p.bedrooms',
                 'p.postal_code',
                 'p.description',
                 'p.neighborhood',
                 'l.id as lease_id',
-                'l.start_date as lease_start_date',
-                'l.end_date as lease_end_date',
-                'l.rent_amount as lease_rent_amount',
-                'l.due_day as lease_due_day',
                 'l.status as lease_status',
+                'l.due_day as lease_due_day',
+                'l.end_date as lease_end_date',
+                'l.start_date as lease_start_date',
+                'l.rent_amount as lease_rent_amount',
                 't.id as tenant_id',
                 't.name as tenant_name',
                 't.email as tenant_email',
@@ -163,6 +171,7 @@ class PropertyRepository implements PropertyRepositoryInterface
 
         $property
             ->setLease($lease)
+            ->setArea($result->area)
             ->setCity($result->city)
             ->setTitle($result->title)
             ->setState($result->state)
@@ -170,6 +179,8 @@ class PropertyRepository implements PropertyRepositoryInterface
             ->setStatus($result->status)
             ->setStreet($result->street)
             ->setNumber($result->number)
+            ->setParking($result->parking)
+            ->setBedrooms($result->bedrooms)
             ->setPostalCode($result->postal_code)
             ->setDescription($result->description)
             ->setNeighborhood($result->neighborhood)
@@ -226,15 +237,18 @@ class PropertyRepository implements PropertyRepositoryInterface
             ->where('id', $property->getId())
             ->where('owner_id', $property->getOwner()->getId())
             ->update([
-                'title' => $property->getTitle(),
-                'description' => $property->getDescription(),
-                'postal_code' => $property->getPostalCode(),
-                'street' => $property->getStreet(),
-                'number' => $property->getNumber(),
-                'neighborhood' => $property->getNeighborhood(),
+                'updated_at' => now(),
+                'area' => $property->getArea(),
                 'city' => $property->getCity(),
                 'state' => $property->getState(),
-                'updated_at' => now(),
+                'title' => $property->getTitle(),
+                'street' => $property->getStreet(),
+                'number' => $property->getNumber(),
+                'parking' => $property->getParking(),
+                'bedrooms' => $property->getBedrooms(),
+                'postal_code' => $property->getPostalCode(),
+                'description' => $property->getDescription(),
+                'neighborhood' => $property->getNeighborhood(),
             ])
         ;
     }
