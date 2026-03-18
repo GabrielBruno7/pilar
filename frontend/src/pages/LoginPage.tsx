@@ -60,6 +60,12 @@ export default function LoginPage() {
               Bem-vindo ao Pilar
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
+              Não possui uma conta?{' '}
+              <Link to="/cadastro" className="text-primary underline">
+                Cadastre-se
+              </Link>
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
               Gestão e organização imobiliária.
             </p>
           </div>

@@ -4,16 +4,44 @@ import { Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { register } from "@/services/auth";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+    setError("");
+
+    if (!name.trim() || !email.trim() || !password.trim() || !confirm.trim()) {
+      setError("Preencha todos os campos.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+      navigate("/"); // Após cadastro, redireciona para login
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao cadastrar.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,44 +51,78 @@ export default function RegisterPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <Building2 className="h-6 w-6 text-primary-foreground" />
           </div>
+
           <div className="text-center">
-            <h1 className="text-xl font-semibold text-foreground">Criar conta no Pilar</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Comece a gerenciar seus imóveis.</p>
+            <h1 className="text-xl font-semibold text-foreground">
+              Crie sua conta no Pilar
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Já possui uma conta?{' '}
+              <Link to="/" className="text-primary underline">
+                Entrar
+              </Link>
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { id: "name", label: "Nome", type: "text", placeholder: "Seu nome completo", field: "name" },
-            { id: "email", label: "E-mail", type: "email", placeholder: "seu@email.com", field: "email" },
-            { id: "password", label: "Senha", type: "password", placeholder: "••••••••", field: "password" },
-            { id: "confirm", label: "Confirmar Senha", type: "password", placeholder: "••••••••", field: "confirm" },
-          ].map((input) => (
-            <div key={input.id} className="space-y-2">
-              <Label htmlFor={input.id} className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {input.label}
-              </Label>
-              <Input
-                id={input.id}
-                type={input.type}
-                placeholder={input.placeholder}
-                value={form[input.field as keyof typeof form]}
-                onChange={(e) => update(input.field, e.target.value)}
-                className="border-none bg-muted ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary"
-              />
-            </div>
-          ))}
-          <Button type="submit" className="w-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
-            Criar conta
+          <div>
+            <Label htmlFor="name">Nome</Label>
+            <Input
+              id="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="email">E-mail</Label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Senha</Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="confirm">Confirmar Senha</Label>
+            <Input
+              id="confirm"
+              type="password"
+              autoComplete="new-password"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="text-sm text-destructive">{error}</div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Cadastrando..." : "Cadastrar"}
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Já tem uma conta?{" "}
-          <Link to="/" className="font-medium text-primary hover:underline">
-            Entrar
-          </Link>
-        </p>
       </div>
     </div>
   );
