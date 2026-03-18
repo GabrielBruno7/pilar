@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { logout } from "@/services/auth";
+import { toast } from "@/components/ui/sonner";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -27,9 +28,14 @@ export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const handleLogout = async () => {
-    await logout();
-    setMobileOpen(false);
-    navigate("/");
+    try {
+      await logout();
+      toast.success("Logout realizado com sucesso!");
+      setMobileOpen(false);
+      navigate("/");
+    } catch (err) {
+      toast.error("Erro ao sair da conta.");
+    }
   };
 
   const navContent = (

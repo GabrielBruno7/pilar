@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/services/auth";
+import { toast } from "@/components/ui/sonner";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -39,9 +40,11 @@ export default function LoginPage() {
       localStorage.setItem("user_name", response.name);
       localStorage.setItem("user_email", response.email);
 
+      toast.success("Login realizado com sucesso!");
       navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao fazer login.");
+      toast.error(err instanceof Error ? err.message : "Erro ao fazer login.");
     } finally {
       setLoading(false);
     }
@@ -59,12 +62,6 @@ export default function LoginPage() {
             <h1 className="text-xl font-semibold text-foreground">
               Bem-vindo ao Pilar
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Não possui uma conta?{' '}
-              <Link to="/cadastro" className="text-primary underline">
-                Cadastre-se
-              </Link>
-            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Gestão e organização imobiliária.
             </p>

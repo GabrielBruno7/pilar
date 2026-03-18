@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { register } from "@/services/auth";
+import { toast } from "@/components/ui/sonner";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -36,9 +37,11 @@ export default function RegisterPage() {
         email: email.trim(),
         password,
       });
-      navigate("/"); // Após cadastro, redireciona para login
+      toast.success("Cadastro realizado com sucesso!");
+      navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao cadastrar.");
+      toast.error(err instanceof Error ? err.message : "Erro ao cadastrar.");
     } finally {
       setLoading(false);
     }
