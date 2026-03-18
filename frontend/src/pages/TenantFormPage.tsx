@@ -6,15 +6,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
+import { createTenant } from "@/services/tenant";
+import { toast } from "@/components/ui/sonner";
 
 export default function TenantFormPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", phone: "", document: "" });
+  const [loading, setLoading] = useState(false);
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/inquilinos");
+    setLoading(true);
+    try {
+      await createTenant(form);
+      toast.success("Inquilino cadastrado com sucesso!");
+      navigate("/inquilinos");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao cadastrar inquilino.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputClass = "border-none bg-muted ring-1 ring-border focus-visible:ring-2 focus-visible:ring-primary";
@@ -42,11 +54,14 @@ export default function TenantFormPage() {
                 onChange={(e) => update(input.field, e.target.value)}
                 className={inputClass}
                 placeholder={input.placeholder}
+                required
               />
             </div>
           ))}
           <div className="flex gap-3 pt-2">
-            <Button type="submit" className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">Salvar</Button>
+            <Button type="submit" className="bg-primary text-primary-foreground shadow-sm hover:bg-primary/90" disabled={loading}>
+              {loading ? "Cadastrando..." : "Salvar"}
+            </Button>
             <Button type="button" variant="outline" onClick={() => navigate(-1)} className="border-border text-foreground hover:bg-muted">Cancelar</Button>
           </div>
         </form>

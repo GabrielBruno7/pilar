@@ -1,22 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
+import { listTenants, Tenant } from "@/services/tenant";
+import { toast } from "@/components/ui/sonner";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 
-const mockTenants = [
-  { id: 1, name: "Maria Silva", email: "maria@email.com", phone: "(11) 99999-1234", document: "123.456.789-00" },
-  { id: 2, name: "João Santos", email: "joao@email.com", phone: "(41) 98888-5678", document: "987.654.321-00" },
-  { id: 3, name: "Ana Costa", email: "ana@email.com", phone: "(21) 97777-9012", document: "456.789.123-00" },
-  { id: 4, name: "Carlos Oliveira", email: "carlos@email.com", phone: "(31) 96666-3456", document: "321.654.987-00" },
-];
 
 export default function TenantsPage() {
   const [search, setSearch] = useState("");
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filtered = mockTenants.filter((t) =>
+  useEffect(() => {
+    setLoading(true);
+    listTenants()
+      .then(setTenants)
+      .catch((err) => {
+        setError("Erro ao carregar inquilinos.");
+        toast.error(err instanceof Error ? err.message : "Erro ao carregar inquilinos.");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = tenants.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase()) ||
     t.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -44,16 +55,42 @@ export default function TenantsPage() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-2">
-        {filtered.map((t) => (
-          <div key={t.id} className="flex flex-col gap-2 rounded-lg bg-card p-4 shadow-card transition-shadow hover:shadow-card-hover sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-foreground">{t.name}</p>
-              <p className="text-xs text-muted-foreground">{t.email} · {t.phone}</p>
-            </div>
-            <p className="text-xs tabular-nums text-muted-foreground">{t.document}</p>
-          </div>
-        ))}
+      <div className="mt-6 overflow-hidden rounded-lg bg-card shadow-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b bg-muted/50">
+              <TableHead>Nome</TableHead>
+              <TableHead>E-mail</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>Documento</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-muted-foreground">Carregando...</TableCell>
+              </TableRow>
+            )}
+            {error && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-destructive">{error}</TableCell>
+              </TableRow>
+            )}
+            {!loading && !error && filtered.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum inquilino encontrado.</TableCell>
+              </TableRow>
+            )}
+            {!loading && !error && filtered.map((t) => (
+              <TableRow key={t.id} className="transition-colors hover:bg-muted/30">
+                <TableCell className="font-medium text-foreground">{t.name}</TableCell>
+                <TableCell className="text-muted-foreground">{t.email}</TableCell>
+                <TableCell className="text-muted-foreground">{t.phone}</TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{t.document}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </AppLayout>
   );

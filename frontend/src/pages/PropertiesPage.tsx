@@ -6,6 +6,7 @@ import { StatusBadge, StatusType } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Eye, Pencil, Trash2 } from "lucide-react";
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 
 const mockProperties = [
   { id: 1, title: "Apt 301 - Ed. Solar", city: "São Paulo", state: "SP", status: "ativo" as StatusType },
@@ -46,38 +47,50 @@ export default function PropertiesPage() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-2">
-        {filtered.map((p) => (
-          <div
-            key={p.id}
-            className="flex flex-col gap-3 rounded-lg bg-card p-4 shadow-card transition-shadow hover:shadow-card-hover sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-foreground">{p.title}</p>
-              <p className="text-xs text-muted-foreground">
-                {p.city}, {p.state}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <StatusBadge status={p.status} />
-              <div className="flex items-center gap-1">
-                <Link to={`/imoveis/${p.id}`}>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link to={`/imoveis/${p.id}/editar`}>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="mt-6 overflow-hidden rounded-lg bg-card shadow-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b bg-muted/50">
+              <TableHead>Título</TableHead>
+              <TableHead>Cidade</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Ações</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">Nenhum imóvel encontrado.</TableCell>
+              </TableRow>
+            )}
+            {filtered.map((p) => (
+              <TableRow key={p.id} className="transition-colors hover:bg-muted/30">
+                <TableCell className="font-medium text-foreground">{p.title}</TableCell>
+                <TableCell className="text-muted-foreground">{p.city}</TableCell>
+                <TableCell className="text-muted-foreground">{p.state}</TableCell>
+                <TableCell><StatusBadge status={p.status} /></TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <Link to={`/imoveis/${p.id}`}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link to={`/imoveis/${p.id}/editar`}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </AppLayout>
   );

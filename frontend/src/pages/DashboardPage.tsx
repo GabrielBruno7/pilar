@@ -142,14 +142,6 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <p className="text-lg font-semibold tabular-nums text-foreground shrink-0">{p.value}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5 border-primary/30 text-primary hover:bg-accent hover:text-accent-foreground"
-                  >
-                    <Send className="h-3.5 w-3.5" />
-                    Enviar lembrete
-                  </Button>
                 </div>
               </div>
             ))}
