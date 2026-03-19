@@ -22,7 +22,7 @@ class Property
     private ?string $postalCode = null;
     private ?string $description = null;
     private ?string $neighborhood = null;
-
+    private bool $hasActiveLease = false;
     private ?PropertyRepositoryInterface $persistence;
 
     public const STATUS_DELETED = 'deleted';
@@ -216,5 +216,17 @@ class Property
     public function getParking(): ?int
     {
         return $this->parking;
+    }
+
+    public function setHasActiveLease(bool $hasActiveLease): self
+    {
+        $this->hasActiveLease = $hasActiveLease;
+
+        return $this;
+    }
+
+    public function getHasActiveLease(): bool
+    {
+        return $this->hasActiveLease;
     }
 }

@@ -34,23 +34,23 @@ class PropertyRepository implements PropertyRepositoryInterface
 
     public function findPropertiesByOwnerId(string $ownerId): array
     {
-        $data = DB::table('properties')
+        $data = DB::table('properties as p')
             ->select(
-                'id',
-                'city',
-                'state',
-                'title',
-                'status',
-                'street',
-                'number',
-                'postal_code',
-                'description',
-                'neighborhood'
+                'p.id',
+                'p.city',
+                'p.state',
+                'p.title',
+                'p.status',
+                'p.street',
+                'p.number',
+                'p.postal_code',
+                'p.description',
+                'p.neighborhood'
             )
-            ->where('owner_id', $ownerId)
-            ->orderBy('created_at', 'desc')
-            ->where('status', '!=', Property::STATUS_DELETED)
-            ->where('deleted_at', null)
+            ->where('p.owner_id', $ownerId)
+            ->orderBy('p.created_at', 'desc')
+            ->where('p.status', '!=', Property::STATUS_DELETED)
+            ->where('p.deleted_at', null)
             ->get()
         ;
 
@@ -58,18 +58,31 @@ class PropertyRepository implements PropertyRepositoryInterface
             return [];
         }
 
-        return array_map(fn($propertyData) => (new Property())
-            ->setId($propertyData->id)
-            ->setCity($propertyData->city)
-            ->setState($propertyData->state)
-            ->setTitle($propertyData->title)
-            ->setStatus($propertyData->status)
-            ->setStreet($propertyData->street)
-            ->setNumber($propertyData->number)
-            ->setPostalCode($propertyData->postal_code)
-            ->setDescription($propertyData->description)
-            ->setNeighborhood($propertyData->neighborhood)
-        , $data->toArray());
+        $properties = [];
+
+        foreach ($data as $propertyData) {
+            $hasActiveLease = DB::table('leases')
+                ->where('property_id', $propertyData->id)
+                ->where('status', Lease::STATUS_ACTIVE)
+                ->exists()
+            ;
+
+            $properties[] = (new Property())
+                ->setId($propertyData->id)
+                ->setCity($propertyData->city)
+                ->setState($propertyData->state)
+                ->setTitle($propertyData->title)
+                ->setStatus($propertyData->status)
+                ->setStreet($propertyData->street)
+                ->setNumber($propertyData->number)
+                ->setHasActiveLease($hasActiveLease)
+                ->setPostalCode($propertyData->postal_code)
+                ->setDescription($propertyData->description)
+                ->setNeighborhood($propertyData->neighborhood)
+            ;
+        }
+
+        return $properties;
     }
 
     public function findRecentProperties(Property $property): array

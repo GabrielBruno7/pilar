@@ -2,13 +2,14 @@
 
 namespace Core\UseCase\Property\ListPropertiesUseCase;
 
-final class ListPropertiesItemOutput
+class ListPropertiesItemOutput
 {
     public function __construct(
         public string $id,
         public string $title,
-        public string $status,
         public ?string $city,
+        public string $status,
         public ?string $state,
+        public bool $hasActiveLease,
     ) {}
 }
