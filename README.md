@@ -1,8 +1,8 @@
 # 🏢 Pilar
 
-Pilar é um sistema de gestão de imóveis focado em locação, desenvolvido como projeto prático com o objetivo de simular um SaaS real para administração imobiliária.
+Pilar é um sistema de gestão de imóveis focado em locação, desenvolvido com o objetivo de simular um SaaS real para administração imobiliária.
 
-A aplicação permite gerenciar imóveis, inquilinos, contratos e pagamentos de forma simples, organizada e com foco em produtividade.
+A proposta é centralizar o controle de imóveis, contratos, inquilinos e pagamentos em uma única plataforma, trazendo mais organização e visibilidade para a operação.
 
 ---
 ## 📸 Preview
@@ -45,6 +45,16 @@ A ideia foi simular um sistema que poderia ser utilizado por:
 ---
 
 ## Tecnologias
+
+## Deploy
+
+O projeto também foi testado em ambiente real utilizando VPS, com configuração de:
+
+- Docker e Docker Compose para orquestração dos serviços
+- Nginx como servidor web
+- Backend e frontend rodando em containers separados
+
+Essa abordagem permitiu simular um cenário mais próximo de produção, facilitando testes de integração e deploy.
 
 ### Frontend
 - React + TypeScript
