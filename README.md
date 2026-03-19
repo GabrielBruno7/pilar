@@ -1,11 +1,11 @@
-# 🏢 Pilar
+# Pilar
 
 Pilar é um sistema de gestão de imóveis focado em locação, desenvolvido com o objetivo de simular um SaaS real para administração imobiliária.
 
 A proposta é centralizar o controle de imóveis, contratos, inquilinos e pagamentos em uma única plataforma, trazendo mais organização e visibilidade para a operação.
 
 ---
-## 📸 Preview
+## Preview
 
 <img width="1620" height="912" alt="image" src="https://github.com/user-attachments/assets/e094abe4-9803-4151-93b4-cda2088bc446" />
 
