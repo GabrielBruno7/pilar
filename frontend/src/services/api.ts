@@ -1,5 +1,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
 
+function clearSessionAndRedirect() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/";
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -25,11 +31,22 @@ export async function apiFetch<T>(
 
   const data = await response.json().catch(() => null);
 
+  if (response.status === 401) {
+    clearSessionAndRedirect();
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
+
+  if (response.status === 403) {
+    clearSessionAndRedirect();
+    throw new Error("Acesso negado. Faça login novamente.");
+  }
+
   if (!response.ok) {
     const errorMessage =
       data?.message ||
       data?.error ||
       "Erro na requisição.";
+
     throw new Error(errorMessage);
   }
 
