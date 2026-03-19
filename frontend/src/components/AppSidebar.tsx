@@ -41,12 +41,21 @@ export function AppSidebar() {
   const navContent = (
     <div className="flex h-full flex-col">
 
-      <div className="flex h-16 items-center gap-2.5 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+    <div className="flex h-16 items-center px-6">
+      <RouterNavLink
+        to="/dashboard"
+        onClick={() => setMobileOpen(false)}
+        className="group flex items-center gap-2.5 rounded-lg transition-all duration-200 hover:scale-[1.02] hover:opacity-90"
+      >
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary transition-transform duration-200 group-hover:rotate-[-6deg] group-hover:scale-105">
           <Building2 className="h-4 w-4 text-primary-foreground" />
         </div>
-        <span className="text-lg font-semibold text-foreground">Pilar</span>
-      </div>
+
+        <span className="pt-0.5 text-lg font-semibold tracking-[0.34em] text-foreground transition-all duration-200 group-hover:tracking-[0.38em]">
+          PILAR
+        </span>
+      </RouterNavLink>
+    </div>
 
       <nav className="flex-1 space-y-1 px-3 pt-4">
         {navItems.map((item) => {
